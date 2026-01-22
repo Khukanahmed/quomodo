@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:quomodo/feature/home/controller/home_controller.dart';
+import 'package:quomodo/feature/home/view/cartegories_product_screen.dart';
 import 'package:quomodo/feature/home/view/product_details.dart';
 import 'package:quomodo/feature/home/widget/category_item_widget.dart';
 import 'package:quomodo/feature/home/widget/category_shimmer.dart';
@@ -167,7 +168,12 @@ class HomeScreen extends StatelessWidget {
                           ) {
                             return GestureDetector(
                               onTap: () {
-                                print('Selected category: ${category.name}');
+                                Get.to(
+                                  () => CartegoriesProductScreen(
+                                    category: category.name,
+                                  ),
+                                  arguments: category.id,
+                                );
                               },
                               child: CategoryItem(category: category),
                             );
@@ -191,10 +197,27 @@ class HomeScreen extends StatelessWidget {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          IconButton(
-                            icon: Icon(Icons.tune, color: Colors.grey[600]),
-                            onPressed: () {},
+                          GestureDetector(
+                            onTap: () {
+                              Get.to(
+                                () => CartegoriesProductScreen(
+                                  category: 'New Arrivals',
+                                ),
+                              );
+                            },
+                            child: Text(
+                              "See all",
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
                           ),
+                          // IconButton(
+                          //   icon: Icon(Icons.tune, color: Colors.grey[600]),
+                          //   onPressed: () {},
+                          // ),
                         ],
                       ),
                     ),
