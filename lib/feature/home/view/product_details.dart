@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:quomodo/feature/home/controller/product_controller.dart';
@@ -33,9 +34,9 @@ class ProductDetailScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildProductImage(product, controller),
+                      _buildProductImageCached(product, controller),
                       SizedBox(height: 16),
-                      _buildImageThumbnails(product, controller),
+                      _buildImageThumbnailsCached(product, controller),
                       SizedBox(height: 24),
                       _buildProductInfo(product),
                       SizedBox(height: 24),
@@ -55,6 +56,111 @@ class ProductDetailScreen extends StatelessWidget {
     );
   }
 
+  // Cached Main Product Image
+  Widget _buildProductImageCached(
+    ProductDetails product,
+    ProductController controller,
+  ) {
+    return Center(
+      child: SizedBox(
+        height: 280,
+        child: CachedNetworkImage(
+          imageUrl: product.fullImageUrl,
+          fit: BoxFit.contain,
+          placeholder: (context, url) => Container(
+            color: Colors.grey[200],
+            child: Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFFFC107)),
+              ),
+            ),
+          ),
+          errorWidget: (context, url, error) => Container(
+            color: Colors.grey[200],
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.image_not_supported,
+                  size: 100,
+                  color: Colors.grey[400],
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'Failed to load image',
+                  style: TextStyle(color: Colors.grey[600]),
+                ),
+              ],
+            ),
+          ),
+          memCacheHeight: 560,
+          memCacheWidth: 560,
+        ),
+      ),
+    );
+  }
+
+  // Cached Thumbnail Images
+  Widget _buildImageThumbnailsCached(
+    ProductDetails product,
+    ProductController controller,
+  ) {
+    List<String> images = [
+      product.fullImageUrl,
+      product.fullImageUrl,
+      product.fullImageUrl,
+      product.fullImageUrl,
+    ];
+
+    return SizedBox(
+      height: 80,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        padding: EdgeInsets.symmetric(horizontal: 16),
+        itemCount: images.length,
+        itemBuilder: (context, index) {
+          bool isSelected = controller.selectedImageIndex.value == index;
+          return GestureDetector(
+            onTap: () => controller.selectImage(index),
+            child: Container(
+              width: 70,
+              margin: EdgeInsets.only(right: 12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: isSelected ? Color(0xFFFFC107) : Colors.transparent,
+                  width: 2,
+                ),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(6),
+                child: CachedNetworkImage(
+                  imageUrl: images[index],
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => Container(
+                    color: Colors.grey[200],
+                    child: Center(
+                      child: SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    ),
+                  ),
+                  errorWidget: (context, url, error) => Icon(Icons.image),
+                  memCacheHeight: 140,
+                  memCacheWidth: 140,
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  // Other widgets remain the same...
   Widget _buildAppBar(ProductController controller) {
     return Padding(
       padding: EdgeInsets.all(16),
@@ -105,77 +211,6 @@ class ProductDetailScreen extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildProductImage(
-    ProductDetails product,
-    ProductController controller,
-  ) {
-    return Center(
-      child: Container(
-        height: 280,
-        child: Image.network(
-          product.fullImageUrl,
-          fit: BoxFit.contain,
-          errorBuilder: (context, error, stackTrace) {
-            return Container(
-              color: Colors.grey[200],
-              child: Icon(Icons.image_not_supported, size: 100),
-            );
-          },
-        ),
-      ),
-    );
-  }
-
-  Widget _buildImageThumbnails(
-    ProductDetails product,
-    ProductController controller,
-  ) {
-    // Use actual product image (you can add more images if available in gallery)
-    List<String> images = [
-      product.fullImageUrl,
-      product.fullImageUrl,
-      product.fullImageUrl,
-      product.fullImageUrl,
-    ];
-
-    return Container(
-      height: 80,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.symmetric(horizontal: 16),
-        itemCount: images.length,
-        itemBuilder: (context, index) {
-          bool isSelected = controller.selectedImageIndex.value == index;
-          return GestureDetector(
-            onTap: () => controller.selectImage(index),
-            child: Container(
-              width: 70,
-              margin: EdgeInsets.only(right: 12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: isSelected ? Color(0xFFFFC107) : Colors.transparent,
-                  width: 2,
-                ),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(6),
-                child: Image.network(
-                  images[index],
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Icon(Icons.image);
-                  },
-                ),
-              ),
-            ),
-          );
-        },
       ),
     );
   }
@@ -272,7 +307,6 @@ class ProductDetailScreen extends StatelessWidget {
             ],
           ),
           SizedBox(height: 12),
-          // Stock status
           Row(
             children: [
               Icon(
@@ -370,87 +404,6 @@ class ProductDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildRelatedProductCard(RelatedProduct product) {
-    return GestureDetector(
-      onTap: () {
-        Get.off(() => ProductDetailScreen(), arguments: product.slug);
-      },
-      child: Container(
-        width: 160,
-        margin: EdgeInsets.only(right: 12),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 4,
-              offset: Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-              child: Image.network(
-                product.fullImageUrl,
-                height: 120,
-                width: double.infinity,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    height: 120,
-                    color: Colors.grey[200],
-                    child: Icon(Icons.image_not_supported),
-                  );
-                },
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.all(8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    product.shortName,
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Text(
-                        '\$${product.offerPrice.toStringAsFixed(2)}',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.red,
-                        ),
-                      ),
-                      SizedBox(width: 4),
-                      if (product.price > product.offerPrice)
-                        Text(
-                          '\$${product.price.toStringAsFixed(0)}',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey,
-                            decoration: TextDecoration.lineThrough,
-                          ),
-                        ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildBottomBar(ProductController controller) {
     return Container(
       padding: EdgeInsets.all(16),
@@ -530,7 +483,126 @@ class ProductDetailScreen extends StatelessWidget {
     );
   }
 
-  // Helper method to strip HTML tags
+  Widget _buildRelatedProductCard(RelatedProduct product) {
+    return GestureDetector(
+      onTap: () {
+        // Get.off(() => ProductDetailScreen(), arguments: product.slug);
+      },
+      child: Container(
+        width: 180,
+        margin: EdgeInsets.only(right: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 4,
+              offset: Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Image Container with Caching
+            ClipRRect(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: CachedNetworkImage(
+                  imageUrl: product.fullImageUrl,
+                  height: 120,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  // Placeholder while loading
+                  placeholder: (context, url) => Container(
+                    height: 120,
+                    color: Colors.grey[200],
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Color(0xFFFFC107),
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Error widget if image fails to load
+                  errorWidget: (context, url, error) => Container(
+                    height: 120,
+                    color: Colors.grey[200],
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.image_not_supported,
+                          color: Colors.grey[400],
+                          size: 40,
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Image unavailable',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Colors.grey[500],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Cache configuration
+                  memCacheHeight: 240, // Cache with 2x resolution for quality
+                  memCacheWidth: 360,
+                  maxHeightDiskCache: 240,
+                  maxWidthDiskCache: 360,
+                ),
+              ),
+            ),
+            // Product Info
+            Padding(
+              padding: EdgeInsets.all(8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    product.shortName,
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Text(
+                        '\$${product.offerPrice.toStringAsFixed(1)}',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red,
+                        ),
+                      ),
+                      SizedBox(width: 4),
+                      if (product.price > product.offerPrice)
+                        Text(
+                          '\$${product.price.toStringAsFixed(0)}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                            decoration: TextDecoration.lineThrough,
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   String _stripHtmlTags(String htmlText) {
     final RegExp exp = RegExp(r"<[^>]*>", multiLine: true, caseSensitive: true);
     return htmlText.replaceAll(exp, '').replaceAll('&nbsp;', ' ').trim();

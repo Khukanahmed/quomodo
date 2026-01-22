@@ -36,11 +36,7 @@ class ProductController extends GetxController {
         final jsonData = json.decode(response.body);
         final productResponse = ProductDetailsResponse.fromJson(jsonData);
 
-        if (productResponse.product != null) {
-          currentProduct.value = productResponse;
-        } else {
-          throw Exception('Product not found');
-        }
+        currentProduct.value = productResponse;
       } else {
         throw Exception('Failed to load product');
       }

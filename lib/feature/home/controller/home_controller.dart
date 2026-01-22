@@ -39,7 +39,6 @@ class HomeController extends GetxController {
     } catch (e) {
       errorMessage.value = 'Error loading data: $e';
       isLoading.value = false;
-      print('Error fetching API: $e');
     }
   }
 

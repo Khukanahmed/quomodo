@@ -1,10 +1,11 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:quomodo/feature/home/controller/home_controller.dart';
 import 'package:quomodo/feature/home/view/product_details.dart';
 import 'package:quomodo/feature/home/widget/category_item_widget.dart';
+import 'package:quomodo/feature/home/widget/category_shimmer.dart';
 import 'package:quomodo/feature/home/widget/product_card_widget.dart';
+import 'package:quomodo/feature/home/widget/product_shimmer.dart';
 
 class HomeScreen extends StatelessWidget {
   HomeScreen({super.key});
@@ -48,7 +49,51 @@ class HomeScreen extends StatelessWidget {
           Expanded(
             child: Obx(() {
               if (controller.isLoading.value) {
-                return Center(child: CircularProgressIndicator());
+                return SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Categories title
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        child: Text(
+                          'Categories',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 16),
+
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 30),
+                        child: CategoryShimmer(),
+                      ),
+
+                      SizedBox(height: 32),
+
+                      // New Arrivals title
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        child: Text(
+                          'New Arrivals',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+
+                      SizedBox(height: 16),
+
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        child: ProductGridShimmer(),
+                      ),
+                    ],
+                  ),
+                );
               }
 
               if (controller.errorMessage.isNotEmpty) {
