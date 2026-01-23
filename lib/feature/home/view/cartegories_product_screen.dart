@@ -10,12 +10,12 @@ class CartegoriesProductScreen extends StatelessWidget {
   final String? category;
   CartegoriesProductScreen({super.key, this.category});
   final CategoriesController controller = Get.put(CategoriesController());
+  final TextEditingController searchController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xFFFAF3E0),
-      //appBar: AppBar(title: Text(category ?? 'Category Products')),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -24,7 +24,6 @@ class CartegoriesProductScreen extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.fromLTRB(8, 0, 0, 8),
                 child: Row(
-                  //mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     InkWell(
                       onTap: () => Get.back(),
@@ -51,15 +50,30 @@ class CartegoriesProductScreen extends StatelessWidget {
                 ),
               ),
 
-              TextFormField(
-                decoration: InputDecoration(
-                  hintText: 'Search products',
-                  prefixIcon: Icon(Icons.search),
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
+              Obx(
+                () => TextFormField(
+                  controller: searchController,
+                  onChanged: (value) {
+                    controller.searchProducts(value);
+                  },
+                  decoration: InputDecoration(
+                    hintText: 'Search products',
+                    prefixIcon: Icon(Icons.search),
+                    suffixIcon: controller.searchQuery.value.isNotEmpty
+                        ? IconButton(
+                            icon: Icon(Icons.clear),
+                            onPressed: () {
+                              searchController.clear();
+                              controller.clearSearch();
+                            },
+                          )
+                        : null,
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
                   ),
                 ),
               ),
@@ -71,7 +85,21 @@ class CartegoriesProductScreen extends StatelessWidget {
                   }
 
                   if (controller.products.isEmpty) {
-                    return const Center(child: Text('No products found'));
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.search_off, size: 64, color: Colors.grey),
+                          SizedBox(height: 16),
+                          Text(
+                            controller.searchQuery.value.isNotEmpty
+                                ? 'No products found for "${controller.searchQuery.value}"'
+                                : 'No products found',
+                            style: TextStyle(fontSize: 16, color: Colors.grey),
+                          ),
+                        ],
+                      ),
+                    );
                   }
 
                   return GridView.builder(
@@ -93,21 +121,66 @@ class CartegoriesProductScreen extends StatelessWidget {
                             arguments: productCategory.slug,
                           );
                         },
-                        child: ProductCard(
-                          product: Product(
-                            id: index,
-                            name: productCategory.name,
-                            thumbImage: productCategory.thumbImage,
-                            price: productCategory.price,
-                            slug: productCategory.slug,
-                            offerPrice: productCategory.offerPrice,
-                            shortName: productCategory.name,
-                            qty: 10,
-                            averageRating: productCategory.averageRating,
-                            totalSold: productCategory.totalSold,
-                            categoryId: 1,
-                            activeVariants: [],
-                          ),
+                        child: Stack(
+                          children: [
+                            ProductCard(
+                              product: Product(
+                                id: index,
+                                name: productCategory.name,
+                                thumbImage: productCategory.thumbImage,
+                                price: productCategory.price,
+                                slug: productCategory.slug,
+                                offerPrice: productCategory.offerPrice,
+                                shortName: productCategory.name,
+                                qty: 10,
+                                averageRating: productCategory.averageRating,
+                                totalSold: productCategory.totalSold,
+                                categoryId: 1,
+                                activeVariants: [],
+                              ),
+                            ),
+                            Positioned(
+                              top: 8,
+                              right: 8,
+                              child: Obx(
+                                () => InkWell(
+                                  onTap: () {
+                                    controller.toggleWishlist(
+                                      productCategory.id,
+                                    );
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.all(6),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      shape: BoxShape.circle,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.1),
+                                          blurRadius: 4,
+                                          offset: Offset(0, 2),
+                                        ),
+                                      ],
+                                    ),
+                                    child: Icon(
+                                      controller.isInWishlist(
+                                            productCategory.id,
+                                          )
+                                          ? Icons.favorite
+                                          : Icons.favorite_border,
+                                      color:
+                                          controller.isInWishlist(
+                                            productCategory.id,
+                                          )
+                                          ? Colors.red
+                                          : Colors.grey,
+                                      size: 20,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       );
                     },

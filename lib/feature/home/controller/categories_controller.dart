@@ -9,9 +9,12 @@ import 'package:quomodo/feature/home/model/category_model.dart';
 class CategoriesController extends GetxController {
   final isLoading = true.obs;
   final categoryId = 0.obs;
+  final searchQuery = ''.obs;
 
   final categoryResponse = Rxn<CategoryProductResponse>();
+  final allProducts = <CategoryProduct>[].obs;
   final products = <CategoryProduct>[].obs;
+  final wishlistIds = <int>[].obs;
 
   @override
   void onInit() {
@@ -47,6 +50,7 @@ class CategoriesController extends GetxController {
         final responseModel = CategoryProductResponse.fromJson(decoded);
 
         categoryResponse.value = responseModel;
+        allProducts.value = responseModel.products;
         products.value = responseModel.products;
       } else {
         Get.snackbar('Error', 'Failed to load products');
@@ -58,5 +62,47 @@ class CategoriesController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  void searchProducts(String query) {
+    searchQuery.value = query;
+
+    if (query.isEmpty) {
+      products.value = allProducts;
+    } else {
+      products.value = allProducts.where((product) {
+        return product.name.toLowerCase().contains(query.toLowerCase()) ||
+            product.shortName.toLowerCase().contains(query.toLowerCase());
+      }).toList();
+    }
+  }
+
+  void clearSearch() {
+    searchQuery.value = '';
+    products.value = allProducts;
+  }
+
+  void toggleWishlist(int productId) {
+    if (wishlistIds.contains(productId)) {
+      wishlistIds.remove(productId);
+      Get.snackbar(
+        'Removed from Wishlist',
+        'Product removed from your wishlist',
+        snackPosition: SnackPosition.BOTTOM,
+        duration: Duration(seconds: 2),
+      );
+    } else {
+      wishlistIds.add(productId);
+      Get.snackbar(
+        'Added to Wishlist',
+        'Product added to your wishlist',
+        snackPosition: SnackPosition.BOTTOM,
+        duration: Duration(seconds: 2),
+      );
+    }
+  }
+
+  bool isInWishlist(int productId) {
+    return wishlistIds.contains(productId);
   }
 }
