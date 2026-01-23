@@ -9,7 +9,7 @@ class ProductGridShimmer extends StatelessWidget {
     return GridView.builder(
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
-      itemCount: 4,
+      itemCount: 6,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         childAspectRatio: 0.7,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:quomodo/feature/home/controller/home_controller.dart';
+import 'package:quomodo/feature/home/view/all_product_screen.dart';
 import 'package:quomodo/feature/home/view/cartegories_product_screen.dart';
 import 'package:quomodo/feature/home/view/product_details.dart';
 import 'package:quomodo/feature/home/widget/category_item_widget.dart';
@@ -199,11 +200,7 @@ class HomeScreen extends StatelessWidget {
                           ),
                           GestureDetector(
                             onTap: () {
-                              Get.to(
-                                () => CartegoriesProductScreen(
-                                  category: 'New Arrivals',
-                                ),
-                              );
+                              Get.to(() => AllProductScreen());
                             },
                             child: Text(
                               "See all",

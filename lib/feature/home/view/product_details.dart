@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:quomodo/feature/home/controller/product_controller.dart';
 import 'package:quomodo/feature/home/model/product_details_model.dart';
+import 'package:shimmer/shimmer.dart';
 
 class ProductDetailScreen extends StatelessWidget {
   const ProductDetailScreen({super.key});
@@ -15,7 +16,16 @@ class ProductDetailScreen extends StatelessWidget {
       backgroundColor: Color(0xFFFAF3E0),
       body: Obx(() {
         if (controller.isLoading.value) {
-          return Center(child: CircularProgressIndicator());
+          return SafeArea(
+            child: Column(
+              children: [
+                _buildAppBarShimmer(),
+                Expanded(
+                  child: SingleChildScrollView(child: _buildShimmerLoading()),
+                ),
+              ],
+            ),
+          );
         }
 
         final productDetails = controller.currentProduct.value;
@@ -56,7 +66,249 @@ class ProductDetailScreen extends StatelessWidget {
     );
   }
 
-  // Cached Main Product Image
+  Widget _buildShimmerLoading() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Main Image Shimmer
+          Center(
+            child: Container(
+              height: 280,
+              width: double.infinity,
+              margin: EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+          SizedBox(height: 16),
+
+          // Thumbnail Images Shimmer
+          SizedBox(
+            height: 80,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              itemCount: 4,
+              itemBuilder: (context, index) {
+                return Container(
+                  width: 70,
+                  margin: EdgeInsets.only(right: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                );
+              },
+            ),
+          ),
+          SizedBox(height: 24),
+
+          // Product Info Shimmer
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Price
+                Container(
+                  width: 150,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+                SizedBox(height: 12),
+
+                // Category
+                Container(
+                  width: 100,
+                  height: 14,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+                SizedBox(height: 12),
+
+                Container(
+                  width: double.infinity,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+                SizedBox(height: 8),
+
+                Container(
+                  width: 200,
+                  height: 18,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+                SizedBox(height: 12),
+
+                Row(
+                  children: [
+                    ...List.generate(5, (index) {
+                      return Container(
+                        width: 20,
+                        height: 20,
+                        margin: EdgeInsets.only(right: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                      );
+                    }),
+                    SizedBox(width: 8),
+                    Container(
+                      width: 80,
+                      height: 14,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 12),
+
+                // Stock Status
+                Container(
+                  width: 150,
+                  height: 18,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 24),
+
+          // Description Shimmer
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 120,
+                  height: 20,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+                SizedBox(height: 12),
+                ...List.generate(5, (index) {
+                  return Column(
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        height: 14,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                    ],
+                  );
+                }),
+              ],
+            ),
+          ),
+          SizedBox(height: 24),
+
+          // Related Products Shimmer
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Container(
+              width: 150,
+              height: 20,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+          ),
+          SizedBox(height: 12),
+          Container(
+            height: 220,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              itemCount: 3,
+              itemBuilder: (context, index) {
+                return Container(
+                  width: 180,
+                  margin: EdgeInsets.only(right: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                );
+              },
+            ),
+          ),
+          SizedBox(height: 100),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAppBarShimmer() {
+    return Padding(
+      padding: EdgeInsets.all(16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: Color(0xFFFFC107),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.arrow_back, color: Colors.black),
+          ),
+          Shimmer.fromColors(
+            baseColor: Colors.grey[300]!,
+            highlightColor: Colors.grey[100]!,
+            child: Container(
+              width: 150,
+              height: 24,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+          ),
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: Colors.red.shade100,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.favorite_border, color: Colors.red),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildProductImageCached(
     ProductDetails product,
     ProductController controller,
@@ -67,13 +319,10 @@ class ProductDetailScreen extends StatelessWidget {
         child: CachedNetworkImage(
           imageUrl: product.fullImageUrl,
           fit: BoxFit.contain,
-          placeholder: (context, url) => Container(
-            color: Colors.grey[200],
-            child: Center(
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFFFC107)),
-              ),
-            ),
+          placeholder: (context, url) => Shimmer.fromColors(
+            baseColor: Colors.grey[300]!,
+            highlightColor: Colors.grey[100]!,
+            child: Container(color: Colors.white),
           ),
           errorWidget: (context, url, error) => Container(
             color: Colors.grey[200],
@@ -100,7 +349,6 @@ class ProductDetailScreen extends StatelessWidget {
     );
   }
 
-  // Cached Thumbnail Images
   Widget _buildImageThumbnailsCached(
     ProductDetails product,
     ProductController controller,
@@ -119,48 +367,44 @@ class ProductDetailScreen extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 16),
         itemCount: images.length,
         itemBuilder: (context, index) {
-          bool isSelected = controller.selectedImageIndex.value == index;
-          return GestureDetector(
-            onTap: () => controller.selectImage(index),
-            child: Container(
-              width: 70,
-              margin: EdgeInsets.only(right: 12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: isSelected ? Color(0xFFFFC107) : Colors.transparent,
-                  width: 2,
-                ),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(6),
-                child: CachedNetworkImage(
-                  imageUrl: images[index],
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => Container(
-                    color: Colors.grey[200],
-                    child: Center(
-                      child: SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
-                    ),
+          return Obx(() {
+            bool isSelected = controller.selectedImageIndex.value == index;
+            return GestureDetector(
+              onTap: () => controller.selectImage(index),
+              child: Container(
+                width: 70,
+                margin: EdgeInsets.only(right: 12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: isSelected ? Color(0xFFFFC107) : Colors.transparent,
+                    width: 2,
                   ),
-                  errorWidget: (context, url, error) => Icon(Icons.image),
-                  memCacheHeight: 140,
-                  memCacheWidth: 140,
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(6),
+                  child: CachedNetworkImage(
+                    imageUrl: images[index],
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Shimmer.fromColors(
+                      baseColor: Colors.grey[300]!,
+                      highlightColor: Colors.grey[100]!,
+                      child: Container(color: Colors.white),
+                    ),
+                    errorWidget: (context, url, error) => Icon(Icons.image),
+                    memCacheHeight: 140,
+                    memCacheWidth: 140,
+                  ),
                 ),
               ),
-            ),
-          );
+            );
+          });
         },
       ),
     );
   }
 
-  // Other widgets remain the same...
   Widget _buildAppBar(ProductController controller) {
     return Padding(
       padding: EdgeInsets.all(16),
@@ -224,7 +468,7 @@ class ProductDetailScreen extends StatelessWidget {
           Row(
             children: [
               Text(
-                '\$${product.offerPrice.toStringAsFixed(2)}',
+                '\$${product.offerPrice.toStringAsFixed(1)}',
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
@@ -234,7 +478,7 @@ class ProductDetailScreen extends StatelessWidget {
               SizedBox(width: 12),
               if (product.hasDiscount)
                 Text(
-                  '\$${product.price.toStringAsFixed(2)}',
+                  '\$${product.price.toStringAsFixed(1)}',
                   style: TextStyle(
                     fontSize: 18,
                     color: Colors.grey,
@@ -388,7 +632,7 @@ class ProductDetailScreen extends StatelessWidget {
           ),
         ),
         SizedBox(height: 12),
-        Container(
+        SizedBox(
           height: 220,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
@@ -505,7 +749,6 @@ class ProductDetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image Container with Caching
             ClipRRect(
               borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
               child: Padding(
@@ -515,20 +758,11 @@ class ProductDetailScreen extends StatelessWidget {
                   height: 120,
                   width: double.infinity,
                   fit: BoxFit.cover,
-                  // Placeholder while loading
-                  placeholder: (context, url) => Container(
-                    height: 120,
-                    color: Colors.grey[200],
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          Color(0xFFFFC107),
-                        ),
-                      ),
-                    ),
+                  placeholder: (context, url) => Shimmer.fromColors(
+                    baseColor: Colors.grey[300]!,
+                    highlightColor: Colors.grey[100]!,
+                    child: Container(height: 120, color: Colors.white),
                   ),
-                  // Error widget if image fails to load
                   errorWidget: (context, url, error) => Container(
                     height: 120,
                     color: Colors.grey[200],
@@ -551,15 +785,13 @@ class ProductDetailScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  // Cache configuration
-                  memCacheHeight: 240, // Cache with 2x resolution for quality
+                  memCacheHeight: 240,
                   memCacheWidth: 360,
                   maxHeightDiskCache: 240,
                   maxWidthDiskCache: 360,
                 ),
               ),
             ),
-            // Product Info
             Padding(
               padding: EdgeInsets.all(8),
               child: Column(

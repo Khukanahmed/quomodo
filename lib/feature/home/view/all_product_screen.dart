@@ -1,21 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:quomodo/feature/home/controller/categories_controller.dart';
+import 'package:quomodo/feature/home/controller/all_product_controller.dart';
 import 'package:quomodo/feature/home/model/home_model.dart';
 import 'package:quomodo/feature/home/view/product_details.dart';
 import 'package:quomodo/feature/home/widget/product_card_widget.dart';
 import 'package:quomodo/feature/home/widget/product_shimmer.dart';
 
-class CartegoriesProductScreen extends StatelessWidget {
-  final String? category;
-  CartegoriesProductScreen({super.key, this.category});
-  final CategoriesController controller = Get.put(CategoriesController());
+class AllProductScreen extends StatelessWidget {
+  AllProductScreen({super.key});
+  final AllProductController controller = Get.put(AllProductController());
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xFFFAF3E0),
-      //appBar: AppBar(title: Text(category ?? 'Category Products')),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -24,7 +22,6 @@ class CartegoriesProductScreen extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.fromLTRB(8, 0, 0, 8),
                 child: Row(
-                  //mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     InkWell(
                       onTap: () => Get.back(),
@@ -40,7 +37,7 @@ class CartegoriesProductScreen extends StatelessWidget {
                     ),
                     SizedBox(width: 20),
                     Text(
-                      category ?? 'Category Products',
+                      'All Products',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w600,
@@ -51,22 +48,12 @@ class CartegoriesProductScreen extends StatelessWidget {
                 ),
               ),
 
-              TextFormField(
-                decoration: InputDecoration(
-                  hintText: 'Search products',
-                  prefixIcon: Icon(Icons.search),
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-              ),
               SizedBox(height: 16),
+
               Expanded(
                 child: Obx(() {
-                  if (controller.isLoading.value) {
+                  if (controller.isLoading.value &&
+                      controller.products.isEmpty) {
                     return const ProductGridShimmer();
                   }
 
@@ -82,30 +69,49 @@ class CartegoriesProductScreen extends StatelessWidget {
                           crossAxisSpacing: 8,
                           mainAxisSpacing: 8,
                         ),
-                    itemCount: controller.products.length,
+                    itemCount:
+                        controller.products.length +
+                        (controller.currentPage.value <
+                                controller.lastPage.value
+                            ? 1
+                            : 0),
                     itemBuilder: (context, index) {
-                      final productCategory = controller.products[index];
+                      if (index == controller.products.length) {
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          controller.loadMoreProducts();
+                        });
+                        return Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: CircularProgressIndicator(
+                              color: Color(0xFFFFC107),
+                            ),
+                          ),
+                        );
+                      }
+
+                      final product = controller.products[index];
 
                       return GestureDetector(
                         onTap: () {
                           Get.to(
                             () => ProductDetailScreen(),
-                            arguments: productCategory.slug,
+                            arguments: product.slug,
                           );
                         },
                         child: ProductCard(
                           product: Product(
-                            id: index,
-                            name: productCategory.name,
-                            thumbImage: productCategory.thumbImage,
-                            price: productCategory.price,
-                            slug: productCategory.slug,
-                            offerPrice: productCategory.offerPrice,
-                            shortName: productCategory.name,
-                            qty: 10,
-                            averageRating: productCategory.averageRating,
-                            totalSold: productCategory.totalSold,
-                            categoryId: 1,
+                            id: product.id,
+                            name: product.name,
+                            thumbImage: product.thumbImage,
+                            price: product.price,
+                            slug: product.slug,
+                            offerPrice: product.offerPrice,
+                            shortName: product.shortName,
+                            qty: product.qty,
+                            averageRating: product.averageRating,
+                            totalSold: product.totalSold,
+                            categoryId: product.categoryId,
                             activeVariants: [],
                           ),
                         ),

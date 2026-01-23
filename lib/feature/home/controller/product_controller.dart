@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as https;
+import 'package:quomodo/core/network_caller/endpoints.dart';
 import 'dart:convert';
 
 import 'package:quomodo/feature/home/model/product_details_model.dart';
@@ -21,14 +23,16 @@ class ProductController extends GetxController {
       fetchProductDetail(productName);
     }
 
-    print('ProductController initialized with ID: ${Get.arguments}');
+    if (kDebugMode) {
+      print('ProductController initialized with ID: ${Get.arguments}');
+    }
   }
 
   void fetchProductDetail(String name) async {
     try {
       isLoading(true);
       final response = await https.get(
-        Uri.parse('https://mamunuiux.com/flutter_task/api/product/$name'),
+        Uri.parse('${Urls.baseUrl}/product/$name'),
         headers: {'Content-Type': 'application/json'},
       );
 
@@ -41,7 +45,10 @@ class ProductController extends GetxController {
         throw Exception('Failed to load product');
       }
     } catch (e) {
-      Get.snackbar('Error', e.toString(), snackPosition: SnackPosition.BOTTOM);
+      if (kDebugMode) {
+        print('Error fetching product details: $e');
+      }
+      // Get.snackbar('Error', e.toString(), snackPosition: SnackPosition.BOTTOM);
     } finally {
       isLoading(false);
     }

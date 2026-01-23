@@ -27,9 +27,7 @@ class MyApp extends StatelessWidget {
         highlightColor: Colors.transparent,
         hoverColor: Colors.transparent,
       ),
-
-      fallbackLocale: Locale("en", "US"),
-
+      //fallbackLocale: Locale("en", "US"),
       initialRoute: AppRoutes.splash,
       getPages: AppRoutes.routes,
       builder: EasyLoading.init(),

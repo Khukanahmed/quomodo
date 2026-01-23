@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:quomodo/core/network_caller/endpoints.dart';
 import 'package:quomodo/feature/home/model/home_model.dart';
 
 class HomeController extends GetxController {
@@ -9,9 +10,6 @@ class HomeController extends GetxController {
   var favoriteProducts = <int>[].obs;
   var isLoading = false.obs;
   var errorMessage = ''.obs;
-
-  static const String baseUrl = 'https://mamunuiux.com/flutter_task';
-  static const String apiUrl = '$baseUrl/api';
 
   @override
   void onInit() {
@@ -25,7 +23,7 @@ class HomeController extends GetxController {
       errorMessage.value = '';
 
       final response = await http.get(
-        Uri.parse(apiUrl),
+        Uri.parse(Urls.baseUrl),
         headers: {'Content-Type': 'application/json'},
       );
 
@@ -50,7 +48,6 @@ class HomeController extends GetxController {
           .map((json) => Category.fromJson(json))
           .toList();
 
-      // Parse products
       products.value = (data['newArrivalProducts'] as List)
           .map((json) => Product.fromJson(json))
           .toList();
